@@ -825,6 +825,19 @@ textarea:focus {
     min-height: auto;
   }
 
+  .gate-content {
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .gate-subtitle {
+    margin-top: 10px;
+  }
+
+  .monster-stage {
+    min-height: 220px;
+  }
+
   .game-layout {
     height: auto;
   }
@@ -872,16 +885,44 @@ textarea:focus {
     padding: 12px;
   }
 
+  .gate-content {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .gate-subtitle {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .start-panel {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .field {
+    margin-bottom: 9px;
+  }
+
   .nav button {
     padding: 7px 9px;
   }
 
   .avatar-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .avatar-choice {
+    min-height: 92px;
+  }
+
+  .avatar-face {
+    width: 66px;
+    height: 58px;
   }
 
   .monster-stage {
-    min-height: 250px;
+    min-height: 150px;
   }
 
   .gate-title {
