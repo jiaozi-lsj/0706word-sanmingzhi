@@ -3,6 +3,12 @@ const FAST_MS = 3000;
 const SLOW_MS = 6000;
 const TIMEOUT_MS = 12000;
 const MIN_REPLAY_GAP = 3;
+const ROOM_COUNT = 2;
+const ROOM_BASE_SECONDS = 14;
+const ROOM_SECONDS_PER_WORD = 8;
+const ROOM_MIN_SECONDS = 32;
+const ROOM_MAX_SECONDS = 95;
+const URGENT_SECONDS = 5;
 const DEFAULT_WORDS = [
   ["apple", "苹果"],
   ["protect", "保护"],
@@ -59,10 +65,8 @@ const OBSTACLE_BY_THEME = {
   boss: ["bookshelf", "stoneColumn", "mossyStone"],
 };
 const ROOMS = [
-  ["Room 1 办公废墟", "warmup", 3, "office"],
-  ["Room 2 学术图书馆", "normal", 4, "library"],
-  ["Room 3 森林庭院", "reinforce", 5, "forest"],
-  ["Boss 房", "boss", 3, "library"],
+  ["第 1 局 森林庭院", "round", 0, "forest"],
+  ["第 2 局 学术图书馆", "round", 0, "library"],
 ];
 
 const state = {
@@ -447,12 +451,12 @@ function studentUrl(taskId, embeddedTask = null) {
   return `${base}?${query}#student`;
 }
 
-async function copyText(text) {
+async function copyText(text, message = "已复制。") {
   try {
     await navigator.clipboard.writeText(text);
-    alert("已复制链接。");
+    alert(message);
   } catch {
-    prompt("复制这个链接：", text);
+    prompt("复制以下内容：", text);
   }
 }
 
@@ -548,32 +552,43 @@ function bindStudentGate() {
 
 function renderGame() {
   return shell(`
-    <main class="game-layout">
+    <main class="game-layout game-immersive">
       <section class="game-main">
-        <div class="hud">
-          <span id="hudText">准备进入地牢</span>
-          <span id="targetText" class="target">当前目标：未携带</span>
-        </div>
         <div class="canvas-wrap">
           <canvas id="gameCanvas"></canvas>
-        </div>
-      </section>
-      <aside class="game-side">
-        <div class="card">
-          <h2 class="section-title">操作</h2>
-          <div class="control-help">
-            电脑：方向键 / WASD 移动。<br />
-            鼠标或触屏：按住主角拖动移动。<br />
-            走到中文意思旁边拾取。<br />
-            拿到中文武器后，点击英文怪物发射单词武器。
+          <div class="game-hud" aria-live="polite">
+            <div class="room-badge">
+              <span id="roomText">准备进入地牢</span>
+              <small id="roundText">第 1 / 2 局</small>
+            </div>
+            <div id="countdownBadge" class="countdown-badge">--:--</div>
+            <div class="status-cluster">
+              <span id="hpText" class="stat-pill">♥♥♥</span>
+              <span id="shieldText" class="stat-pill">护盾 0</span>
+              <span id="scoreText" class="stat-pill">能量 0</span>
+              <span id="comboText" class="stat-pill">连击 0</span>
+              <span id="continueText" class="stat-pill">救援 1</span>
+            </div>
+          </div>
+          <div id="targetText" class="target-chip">未携带中文词义</div>
+          <div id="feedbackBox" class="game-feedback">捡起一个中文词义，开始挑战。</div>
+          <div class="game-actions">
+            <button class="glass-button" id="skipMeaning" type="button">放弃词义</button>
+            <button class="glass-button" id="backToStudent" type="button">返回开始页</button>
+          </div>
+          <div id="gameHelp" class="game-help">
+            <button id="helpToggle" class="help-button" type="button" aria-label="查看操作说明">?</button>
+            <div class="help-popover">
+              <strong>操作说明</strong>
+              <span>方向键 / WASD 移动；鼠标或触屏按住主角拖动。</span>
+              <span>走到中文意思旁边拾取，再点击对应英文怪物发射武器。</span>
+              <span>没有把握时可以放弃当前词义，它会进入待复习列表。</span>
+            </div>
           </div>
         </div>
-        <div id="feedbackBox" class="feedback-box">捡起一个中文词义，开始挑战。</div>
-        <button class="ghost-button" id="skipMeaning">放弃当前词义</button>
-        <button class="ghost-button" id="backToStudent">返回开始页</button>
-      </aside>
+      </section>
     </main>
-  `);
+  `, { hideNav: true });
 }
 
 function startGame() {
@@ -775,10 +790,18 @@ class WordDungeonGame {
     this.onFinish = onFinish;
     this.canvas = document.querySelector("#gameCanvas");
     this.ctx = this.canvas.getContext("2d");
-    this.hud = document.querySelector("#hudText");
+    this.roomText = document.querySelector("#roomText");
+    this.roundText = document.querySelector("#roundText");
+    this.countdownBadge = document.querySelector("#countdownBadge");
+    this.hpText = document.querySelector("#hpText");
+    this.shieldText = document.querySelector("#shieldText");
+    this.scoreText = document.querySelector("#scoreText");
+    this.comboText = document.querySelector("#comboText");
+    this.continueText = document.querySelector("#continueText");
     this.target = document.querySelector("#targetText");
     this.feedback = document.querySelector("#feedbackBox");
     this.scheduler = new Scheduler(task.words);
+    this.roundWordGroups = splitWordsForRooms(task.words);
     this.heroSheet = loadImage(HERO_SHEET_URL);
     this.gameplaySheet = loadImage(GAMEPLAY_SHEET_URL);
     this.roomSheet = loadImage(ROOM_SHEET_URL);
@@ -789,6 +812,10 @@ class WordDungeonGame {
     this.roomIndex = -1;
     this.roomName = "";
     this.roomKind = "";
+    this.roomDurationMs = ROOM_MIN_SECONDS * 1000;
+    this.deadlineAt = 0;
+    this.lastUrgentSecond = null;
+    this.roomTransitioning = false;
     this.hp = 3;
     this.maxHp = 3;
     this.score = 0;
@@ -837,6 +864,9 @@ class WordDungeonGame {
     this.canvas.addEventListener("pointerup", (event) => this.pointerUp(event));
     this.canvas.addEventListener("pointercancel", () => this.dragging = false);
     document.querySelector("#skipMeaning").addEventListener("click", () => this.skipCurrent());
+    document.querySelector("#helpToggle").addEventListener("click", () => {
+      document.querySelector("#gameHelp").classList.toggle("is-open");
+    });
     document.querySelector("#backToStudent").addEventListener("click", () => {
       if (confirm("返回后当前游戏不会保存为完成结果，确定返回吗？")) {
         this.destroy();
@@ -912,32 +942,34 @@ class WordDungeonGame {
   }
   nextRoom() {
     this.roomIndex += 1;
-    if (this.roomIndex >= ROOMS.length) {
+    if (this.roomIndex >= this.roundWordGroups.length) {
       this.end("completed");
       return;
     }
-    const [name, kind, count, theme] = ROOMS[this.roomIndex];
+    const [name, kind, count, theme] = ROOMS[this.roomIndex] || ROOMS[ROOMS.length - 1];
+    const roomWords = this.roundWordGroups[this.roomIndex] || [];
     this.roomName = name;
     this.roomKind = kind;
     this.roomTheme = theme;
     this.roomStartedAt = performance.now();
+    this.roomDurationMs = roomDurationMs(roomWords.length);
+    this.deadlineAt = this.roomStartedAt + this.roomDurationMs;
+    this.lastUrgentSecond = null;
+    this.roomTransitioning = false;
     this.currentTargetId = null;
     this.currentTargetZh = "";
     this.projectiles = [];
     this.player.x = 94;
     this.player.y = 94;
-    this.obstacles = this.makeObstacles(kind === "boss", theme);
-    if (kind === "boss") {
-      this.bossPhase = 0;
-      this.bossAttempts = 0;
-      this.bossId = this.scheduler.chooseBoss();
-      this.spawnBossPhase();
-    } else {
-      this.spawnRoom(this.scheduler.chooseRoom(kind, Math.min(count, this.task.words.length)));
-      this.setFeedback(`${name}：捡中文，找英文。`);
-    }
+    this.obstacles = this.makeObstacles(false, theme);
+    this.spawnRoom(roomWords);
+    this.setFeedback(`${name}：本局 ${roomWords.length} 个词，倒计时结束前清理它们。`);
   }
   spawnRoom(words) {
+    words.forEach((word) => {
+      const stat = this.scheduler.stats.get(word.word_id);
+      if (stat) stat.exposure_count += 1;
+    });
     this.meanings = words.map((word) => this.makeMeaning(word));
     this.monsters = words.map((word, index) => this.makeMonster(word, false, index));
     this.items = this.roomKind === "warmup" || Math.random() > 0.55 ? [] : [this.makeItem()];
@@ -1010,6 +1042,11 @@ class WordDungeonGame {
     requestAnimationFrame((next) => this.tick(next));
   }
   update(dt, now) {
+    if (!this.roomTransitioning && now >= this.deadlineAt) {
+      this.handleRoomTimeout();
+      this.updateHud(now);
+      return;
+    }
     this.updatePlayer(dt, now);
     this.updateMonsters(dt, now);
     this.updateProjectiles(dt, now);
@@ -1050,11 +1087,10 @@ class WordDungeonGame {
   }
   updateMonsters(dt, now) {
     if (now < this.freezeUntil) return;
-    const speedMultiplier = Math.min(8, 2 ** Math.floor((now - this.roomStartedAt) / 3000));
     this.monsters.forEach((monster) => {
       if (!monster.alive) return;
-      monster.x += monster.vx * speedMultiplier * dt;
-      monster.y += monster.vy * speedMultiplier * dt;
+      monster.x += monster.vx * dt;
+      monster.y += monster.vy * dt;
       const rect = monsterRect(monster);
       if (rect[0] < 16 || rect[2] > this.width - 16) {
         monster.vx *= -1;
@@ -1133,6 +1169,28 @@ class WordDungeonGame {
         this.end("incomplete");
       }
     }
+  }
+  handleRoomTimeout() {
+    if (this.roomTransitioning) return;
+    this.roomTransitioning = true;
+    this.audio.play("timeout");
+    const timeoutMs = TIMEOUT_MS;
+    this.projectiles.filter((projectile) => !projectile.done).forEach((projectile) => {
+      this.scheduler.record(projectile.targetId, projectile.selectedId, timeoutMs, this.roomName, { skip: true });
+    });
+    this.projectiles = [];
+    if (this.currentTargetId) {
+      this.scheduler.record(this.currentTargetId, null, timeoutMs, this.roomName, { skip: true });
+    }
+    this.meanings.filter((item) => item.active).forEach((item) => {
+      this.scheduler.record(item.word_id, null, timeoutMs, this.roomName, { skip: true });
+      item.active = false;
+    });
+    this.currentTargetId = null;
+    this.currentTargetZh = "";
+    this.combo = 0;
+    this.setFeedback("本局倒计时结束，未完成的词已进入复习清单。");
+    setTimeout(() => this.nextRoom(), 950);
   }
   pickMeaning(meaning) {
     if (this.currentTargetId) return;
@@ -1225,8 +1283,10 @@ class WordDungeonGame {
     }
   }
   checkRoomDone() {
-    if (!this.meanings.some((item) => item.active)) {
-      this.setFeedback("房间清理完成，准备进入下一房间。");
+    if (!this.roomTransitioning && !this.meanings.some((item) => item.active)) {
+      this.roomTransitioning = true;
+      const isLastRoom = this.roomIndex >= this.roundWordGroups.length - 1;
+      this.setFeedback(isLastRoom ? "第二局完成，正在生成复习结果。" : "本局完成，准备进入下一局。");
       setTimeout(() => this.nextRoom(), 850);
     }
   }
@@ -1251,12 +1311,26 @@ class WordDungeonGame {
   }
   updateHud(now) {
     const hearts = "♥".repeat(this.hp) + "♡".repeat(Math.max(0, this.maxHp - this.hp));
-    const speedMultiplier = Math.min(8, 2 ** Math.floor((now - this.roomStartedAt) / 3000));
-    this.hud.textContent = `${this.roomName}｜生命 ${hearts}${this.shield ? `｜护盾 ${this.shield}` : ""}｜怪物速度 x${speedMultiplier}｜分数 ${this.score}｜Combo ${this.combo}｜继续 ${this.continues}`;
+    const remainingSec = Math.max(0, Math.ceil((this.deadlineAt - now) / 1000));
+    this.roomText.textContent = this.roomName.replace(/^第\s*\d\s*局\s*/, "");
+    this.roundText.textContent = `第 ${Math.min(this.roomIndex + 1, this.roundWordGroups.length)} / ${this.roundWordGroups.length} 局`;
+    this.countdownBadge.textContent = formatClock(remainingSec);
+    this.countdownBadge.classList.toggle("is-danger", remainingSec <= URGENT_SECONDS);
+    if (remainingSec > 0 && remainingSec <= URGENT_SECONDS && remainingSec !== this.lastUrgentSecond) {
+      this.lastUrgentSecond = remainingSec;
+      this.audio.play("urgent");
+    }
+    this.hpText.textContent = hearts;
+    this.shieldText.textContent = `护盾 ${this.shield}`;
+    this.scoreText.textContent = `能量 ${this.score}`;
+    this.comboText.textContent = `连击 ${this.combo}`;
+    this.continueText.textContent = `救援 ${this.continues}`;
     if (this.currentTargetId) {
-      this.target.textContent = `当前目标：${this.currentTargetZh}｜${Math.floor((now - this.pickupAt) / 1000)}s`;
+      this.target.textContent = `已携带：${this.currentTargetZh}｜寻找对应英文怪物`;
+      this.target.classList.add("is-active");
     } else {
-      this.target.textContent = "当前目标：未携带";
+      this.target.textContent = "未携带中文词义";
+      this.target.classList.remove("is-active");
     }
   }
   draw(now) {
@@ -1412,6 +1486,7 @@ class WordDungeonGame {
 function renderSettlement() {
   const session = state.currentSession || state.data.sessions[state.data.sessions.length - 1];
   const focusText = session.focus_words.length ? session.focus_words.map((w) => `${w.en}（${w.zh}）`).join("、") : "暂无明显薄弱词";
+  const studentReport = buildStudentReport(session);
   return shell(`
     <main class="screen">
       <section class="card">
@@ -1422,6 +1497,13 @@ function renderSettlement() {
           <div class="metric">二次修正<strong>${session.correction_success_count} 词</strong></div>
         </div>
         <div class="feedback-box">值得再遇见一次：${escapeHtml(focusText)}</div>
+        <div class="copy-card">
+          <div class="copy-card-head">
+            <h2 class="section-title">今日复习报告</h2>
+            <button class="small-button" id="copyStudentReport">复制</button>
+          </div>
+          <pre id="studentReportText">${escapeHtml(studentReport)}</pre>
+        </div>
         <table class="word-detail-list">
           <thead><tr><th>英文</th><th>中文</th><th>首次</th><th>平均反应</th><th>标签</th></tr></thead>
           <tbody>
@@ -1440,6 +1522,8 @@ function renderSettlement() {
 }
 
 function bindSettlement() {
+  const report = document.querySelector("#studentReportText")?.textContent || "";
+  document.querySelector("#copyStudentReport")?.addEventListener("click", () => copyText(report, "今日复习报告已复制。"));
   document.querySelector("#again").addEventListener("click", () => navigate("student"));
   document.querySelector("#goResults").addEventListener("click", () => navigate("results"));
 }
@@ -1460,6 +1544,7 @@ function renderResults() {
           </select>
         </label>
         ${taskSessions.length ? `
+          <p class="muted">点击某个学生记录，可以查看词级详情并复制发给家长的话术。</p>
           <table class="result-table">
             <thead><tr><th>昵称</th><th>完成</th><th>首次正确率</th><th>平均反应</th><th>薄弱词</th><th>完成时间</th></tr></thead>
             <tbody>
@@ -1492,8 +1577,24 @@ function bindResults() {
   document.querySelectorAll("[data-session]").forEach((row) => {
     row.addEventListener("click", () => {
       const session = state.data.sessions.find((item) => item.session_id === row.dataset.session);
+      const feedbacks = buildTeacherFeedbacks(session);
       document.querySelector("#sessionDetail").innerHTML = `
         <h2 class="section-title">${escapeHtml(session.player_name)} 的词级详情</h2>
+        <div class="copy-card teacher-feedback-card">
+          <div class="copy-card-head">
+            <div>
+              <h3>家长反馈话术</h3>
+              <p class="muted">可直接复制转发，默认只展开未过关单词。</p>
+            </div>
+            <div class="copy-actions">
+              <select id="feedbackVersion">
+                ${feedbacks.map((item, index) => `<option value="${index}">${escapeHtml(item.title)}</option>`).join("")}
+              </select>
+              <button class="small-button" id="copyTeacherFeedback">复制</button>
+            </div>
+          </div>
+          <textarea id="teacherFeedbackText" readonly>${escapeHtml(feedbacks[0].text)}</textarea>
+        </div>
         <table class="word-detail-list">
           <thead><tr><th>英文</th><th>中文</th><th>首次</th><th>错误</th><th>标签</th></tr></thead>
           <tbody>${session.word_summaries.map((item) => `
@@ -1501,6 +1602,14 @@ function bindResults() {
           `).join("")}</tbody>
         </table>
       `;
+      const feedbackVersion = document.querySelector("#feedbackVersion");
+      const feedbackText = document.querySelector("#teacherFeedbackText");
+      feedbackVersion.addEventListener("change", () => {
+        feedbackText.value = feedbacks[Number(feedbackVersion.value)]?.text || feedbacks[0].text;
+      });
+      document.querySelector("#copyTeacherFeedback").addEventListener("click", () => {
+        copyText(feedbackText.value, "家长反馈话术已复制。");
+      });
     });
   });
 }
@@ -1524,6 +1633,86 @@ function escapeHtml(value) {
 
 function translateResult(value) {
   return { correct: "正确", wrong: "错误", timeout: "超时", not_seen: "未出现" }[value] || "-";
+}
+
+function splitWordsForRooms(words) {
+  if (!words.length) return [];
+  const roomCount = Math.min(ROOM_COUNT, words.length);
+  const perRoom = Math.ceil(words.length / roomCount);
+  return Array.from({ length: roomCount }, (_, index) =>
+    words.slice(index * perRoom, (index + 1) * perRoom)
+  ).filter((group) => group.length);
+}
+
+function roomDurationMs(wordCount) {
+  const seconds = clamp(ROOM_BASE_SECONDS + wordCount * ROOM_SECONDS_PER_WORD, ROOM_MIN_SECONDS, ROOM_MAX_SECONDS);
+  return seconds * 1000;
+}
+
+function formatClock(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function sessionDate(session) {
+  return String(session.end_at || nowText()).slice(0, 10);
+}
+
+function isWordPassed(row) {
+  return ["稳定", "基本掌握"].includes(row.final_status);
+}
+
+function unpassedWords(session) {
+  return session.word_summaries.filter((row) => !isWordPassed(row));
+}
+
+function wordPassText(row) {
+  return isWordPassed(row) ? "已过关" : row.final_status;
+}
+
+function buildStudentReport(session) {
+  const unpassed = unpassedWords(session);
+  const lines = [
+    "【Word Dungeon 单词地牢复习结果】",
+    `日期：${sessionDate(session)}`,
+    `昵称：${session.player_name}`,
+    `总单词数：${session.word_count}`,
+    `未过关单词数：${unpassed.length}`,
+    `首次正确率：${Math.round(session.first_accuracy * 100)}%`,
+    `用时：${session.duration_sec} 秒`,
+    "",
+    "单词过关情况：",
+    ...session.word_summaries.map((row, index) =>
+      `${index + 1}. ${row.en} - ${row.zh}：${wordPassText(row)}`
+    ),
+  ];
+  return lines.join("\n");
+}
+
+function buildTeacherFeedbacks(session) {
+  const unpassed = unpassedWords(session);
+  const passedCount = Math.max(0, session.word_count - unpassed.length);
+  const accuracy = Math.round(session.first_accuracy * 100);
+  const weakText = unpassed.length
+    ? unpassed.map((row) => `${row.en}（${row.zh}）`).join("、")
+    : "本次没有明显未过关单词";
+  const avgText = session.avg_response_ms ? `${(session.avg_response_ms / 1000).toFixed(1)} 秒` : "暂无";
+  const commonStats = `今天共复习 ${session.word_count} 个单词，已过关 ${passedCount} 个，未过关 ${unpassed.length} 个，首次正确率 ${accuracy}%，平均反应时间 ${avgText}。`;
+  return [
+    {
+      title: "稳健反馈版",
+      text: `${session.player_name}小朋友今天完成了 Word Dungeon 单词复习。\n${commonStats}\n需要继续巩固的单词：${weakText}。\n整体完成度不错，建议明天先用 3-5 分钟快速复盘这些词，再进入新的学习内容。`,
+    },
+    {
+      title: "鼓励成长版",
+      text: `今天${session.player_name}小朋友在单词地牢里表现很投入。\n${commonStats}\n目前需要再练一练的词是：${weakText}。\n这些词并不是“不会”，而是还需要多见几次。保持今天这种专注度，下一次会更稳。`,
+    },
+    {
+      title: "家校沟通版",
+      text: `家长您好，${session.player_name}小朋友今天已完成单词闯关复习。\n${commonStats}\n本次未过关单词：${weakText}。\n今晚可以不用额外拉长学习时间，只需要请孩子口头复述这些词的中文意思，帮助把游戏中的短时记忆转成稳定记忆。`,
+    },
+  ];
 }
 
 function shuffle(items) {
@@ -1592,6 +1781,12 @@ class AudioEngine {
       makeOsc("sawtooth", 180, 80, 0.2);
     } else if (name === "hurt") {
       makeOsc("sawtooth", 160, 55, 0.24);
+    } else if (name === "urgent") {
+      gain.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      makeOsc("square", 880, 880, 0.1);
+    } else if (name === "timeout") {
+      makeOsc("sawtooth", 220, 90, 0.3);
     } else if (name === "win") {
       [440, 660, 880].forEach((freq, index) => {
         const osc = this.ctx.createOscillator();

@@ -472,58 +472,228 @@ textarea:focus {
 }
 
 .game-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 14px;
-  height: calc(100vh - 58px);
-  padding: 14px;
+  display: block;
+  height: 100vh;
+  padding: 0;
+  background: #0e1716;
 }
 
 .game-main {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  display: block;
+  height: 100%;
   min-width: 0;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
-  background: var(--panel);
-  box-shadow: var(--shadow);
-}
-
-.hud {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  background: #fffaf4;
-  font-weight: 800;
-}
-
-.target {
-  color: var(--moss-dark);
+  background: #0e1716;
+  box-shadow: none;
 }
 
 .canvas-wrap {
   position: relative;
-  min-height: 0;
+  height: 100%;
+  min-height: 100vh;
   background: var(--floor);
+  overflow: hidden;
 }
 
 #gameCanvas {
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 460px;
+  min-height: 100vh;
   touch-action: none;
   user-select: none;
 }
 
-.game-side {
-  display: flex;
-  flex-direction: column;
+.game-hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto minmax(180px, 1fr);
   gap: 12px;
+  align-items: start;
+  pointer-events: none;
+}
+
+.room-badge,
+.stat-pill,
+.countdown-badge,
+.target-chip,
+.game-feedback,
+.glass-button,
+.help-button,
+.help-popover {
+  color: #fff;
+  background: rgba(18, 34, 31, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.room-badge {
+  justify-self: start;
+  min-width: 156px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.room-badge small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.countdown-badge {
+  justify-self: center;
+  min-width: 112px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffe7a3;
+  border-color: rgba(242, 184, 75, 0.72);
+}
+
+.countdown-badge.is-danger {
+  color: #fff;
+  background: rgba(178, 40, 36, 0.84);
+  border-color: rgba(255, 255, 255, 0.42);
+  animation: timerPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.status-cluster {
+  justify-self: end;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stat-pill {
+  min-height: 34px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.target-chip {
+  position: absolute;
+  left: 50%;
+  top: 86px;
+  z-index: 4;
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100% - 36px));
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 900;
+  text-align: center;
+  pointer-events: none;
+}
+
+.target-chip.is-active {
+  color: #14352d;
+  background: rgba(255, 231, 163, 0.92);
+  border-color: rgba(242, 184, 75, 0.92);
+}
+
+.game-feedback {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 4;
+  max-width: min(460px, calc(100% - 28px));
   min-height: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.game-actions {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.glass-button,
+.help-button {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.glass-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-weight: 900;
+}
+
+.help-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.game-help {
+  position: absolute;
+  right: 14px;
+  top: 92px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.game-help .help-button,
+.game-help .help-popover {
+  pointer-events: auto;
+}
+
+.help-popover {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  display: none;
+  width: min(300px, calc(100vw - 28px));
+  padding: 13px;
+  border-radius: 8px;
+  line-height: 1.58;
+}
+
+.help-popover strong,
+.help-popover span {
+  display: block;
+}
+
+.help-popover span {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.game-help:hover .help-popover,
+.game-help.is-open .help-popover {
+  display: block;
 }
 
 .feedback-box {
@@ -542,6 +712,62 @@ textarea:focus {
   border: 1px solid #c8ded3;
   color: var(--muted);
   line-height: 1.65;
+}
+
+.copy-card {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f5fbf8;
+  border: 1px solid #c8ded3;
+}
+
+.copy-card-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.copy-card-head h2,
+.copy-card-head h3 {
+  margin: 0;
+}
+
+.copy-card pre,
+.copy-card textarea {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.copy-card textarea {
+  min-height: 170px;
+  resize: vertical;
+}
+
+.copy-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.copy-actions select {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fff;
 }
 
 .settlement-grid {
@@ -603,9 +829,37 @@ textarea:focus {
     height: auto;
   }
 
+  .game-immersive {
+    height: 100vh;
+  }
+
   #gameCanvas {
     height: min(64vh, 560px);
     min-height: 390px;
+  }
+
+  .game-immersive #gameCanvas {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .game-hud {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .room-badge,
+  .countdown-badge,
+  .status-cluster {
+    justify-self: center;
+  }
+
+  .target-chip {
+    top: 168px;
+  }
+
+  .game-help {
+    top: 14px;
   }
 
   .game-side {
@@ -634,12 +888,62 @@ textarea:focus {
     font-size: 32px;
   }
 
-  .hud {
-    font-size: 14px;
-  }
-
   #gameCanvas {
     height: 58vh;
     min-height: 340px;
+  }
+
+  .game-immersive #gameCanvas {
+    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .game-hud {
+    left: 8px;
+    right: 8px;
+  }
+
+  .room-badge {
+    min-width: 132px;
+    padding: 8px 10px;
+  }
+
+  .status-cluster {
+    gap: 5px;
+  }
+
+  .stat-pill {
+    min-height: 30px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .target-chip {
+    top: 158px;
+    font-size: 13px;
+  }
+
+  .game-feedback {
+    left: 8px;
+    right: 8px;
+    bottom: 64px;
+    max-width: none;
+    font-size: 13px;
+  }
+
+  .game-actions {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+
+  .glass-button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .copy-card-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
