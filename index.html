@@ -5,167 +5,329 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="雷思静个人作品集：产品经理方向、教育背景、实习经历预留与单词地牢、单词贪吃蛇游戏作品。"
+      content="雷思静的产品经理作品集：四川大学硕士在读，聚焦 AI Agent、生成式 AI、用户研究与可验证的产品实践。"
     />
-    <title>雷思静个人作品集</title>
+    <meta name="theme-color" content="#173b73" />
+    <title>雷思静｜AI 产品经理作品集</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+
     <header class="site-header" aria-label="主导航">
       <a class="brand" href="#home" aria-label="返回首页">
-        <span class="brand-dot"></span>
+        <span class="brand-dot" aria-hidden="true"></span>
         <span>Lei Sijing</span>
       </a>
       <nav class="nav-links" aria-label="页面导航">
         <a href="#home">首页</a>
         <a href="#about">关于我</a>
+        <a href="#experience">实习</a>
         <a href="#projects">项目</a>
-        <a href="#experience">经历</a>
+        <a href="#skills">能力</a>
       </nav>
-      <a class="mail-link" href="mailto:1823169923@qq.com">1823169923@qq.com</a>
+      <a class="header-contact" href="https://github.com/jiaozi-lsj" target="_blank" rel="noreferrer">联系我</a>
     </header>
 
-    <main class="snap-page">
-      <section class="panel hero-panel" id="home" aria-labelledby="hero-title">
-        <p class="hero-kicker">Hi, I'm Lei Sijing, an aspiring</p>
-        <h1 id="hero-title" class="hero-word">WELCOME</h1>
-        <img
-          class="hero-portrait"
-          src="./assets/lei-sijing-portrait.png"
-          alt="雷思静人物照片"
-        />
-        <div class="hero-meta">
-          <div>
-            <span>Currently</span>
-            <strong>四川大学-旅游管理专业-研一</strong>
+    <main id="main-content">
+      <section class="panel hero-panel" id="home" data-section aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">AI PRODUCT MANAGER · OPEN TO INTERNSHIP</p>
+          <h1 id="hero-title">把复杂需求，<br /><em>变成可验证的产品。</em></h1>
+          <p class="hero-intro">
+            你好，我是雷思静。四川大学旅游管理硕士在读，关注 AI Agent、生成式 AI 与用户体验，
+            擅长从真实问题出发，完成需求拆解、流程设计、评测与产品迭代。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#experience">查看实习成果</a>
+            <a class="button button-secondary" href="#projects">浏览产品实践</a>
           </div>
-          <div>
-            <span>Building</span>
-            <strong>Always curious about the world.</strong>
-          </div>
+          <ul class="hero-tags" aria-label="个人关键词">
+            <li>Agent / Prompt</li>
+            <li>用户研究</li>
+            <li>产品评测</li>
+            <li>可交互 Demo</li>
+          </ul>
         </div>
-        <div class="hero-actions">
-          <a class="primary-link" href="#projects">查看项目</a>
-          <a class="secondary-link" href="#about">了解我</a>
+
+        <div class="hero-visual" aria-label="雷思静个人照片与成果数据">
+          <span class="welcome-word" aria-hidden="true">WELCOME</span>
+          <div class="portrait-halo" aria-hidden="true"></div>
+          <img class="hero-portrait" src="./assets/lei-sijing-portrait.png" alt="雷思静个人照片" />
+          <div class="metric metric-top">
+            <strong>200+</strong>
+            <span>AI 产品评测数据</span>
+          </div>
+          <div class="metric metric-left">
+            <strong>23%</strong>
+            <span>下载 / 进入转化率</span>
+          </div>
+          <div class="metric metric-right">
+            <strong>+5%</strong>
+            <span>模块上线两周日活</span>
+          </div>
         </div>
       </section>
 
-      <section class="panel about-panel" id="about" aria-labelledby="about-title">
-        <div class="lanyard-card" aria-label="照片挂牌">
-          <span class="clip"></span>
-          <figure class="id-card">
-            <img src="./assets/about-photo.jpg" alt="雷思静照片挂牌" />
+      <section class="panel about-panel" id="about" data-section aria-labelledby="about-title">
+        <div class="section-heading">
+          <p class="section-mark">01 / ABOUT</p>
+          <h2 id="about-title">从用户现场出发，<br />让洞察真正进入产品。</h2>
+          <p>
+            我的经历横跨文旅调研、酒店供给与 AI 产品。不同场景背后的共同点，
+            是先理解真实使用者，再把模糊问题转译成清晰、可执行、可验证的方案。
+          </p>
+        </div>
+
+        <div class="about-layout">
+          <figure class="profile-card">
+            <span class="profile-clip" aria-hidden="true"></span>
+            <img src="./assets/about-photo.jpg" alt="雷思静照片" />
             <figcaption>
               <strong>雷思静</strong>
-              <span>Lei Sijing</span>
+              <span>AI 产品经理方向</span>
             </figcaption>
           </figure>
-        </div>
 
-        <div class="about-copy">
-          <p class="section-mark">/ About me</p>
-          <h2 id="about-title">个人简介</h2>
-          <dl class="info-grid">
-            <div>
-              <dt>姓名</dt>
-              <dd>雷思静</dd>
+          <div class="about-content">
+            <dl class="info-grid">
+              <div>
+                <dt>求职方向</dt>
+                <dd>产品经理实习</dd>
+              </div>
+              <div>
+                <dt>到岗时间</dt>
+                <dd>随时到岗</dd>
+              </div>
+              <div>
+                <dt>联系方式</dt>
+                <dd><a href="https://github.com/jiaozi-lsj" target="_blank" rel="noreferrer">GitHub 主页</a></dd>
+              </div>
+              <div>
+                <dt>隐私说明</dt>
+                <dd>电话与邮箱不公开</dd>
+              </div>
+            </dl>
+
+            <div class="education-list" aria-label="教育背景">
+              <article>
+                <span>2025.09 — 2028.07</span>
+                <h3>四川大学（985）</h3>
+                <p>旅游管理（工商管理类）· 硕士</p>
+              </article>
+              <article>
+                <span>2021.09 — 2025.06</span>
+                <h3>四川大学（985）</h3>
+                <p>会展经济与管理 · 本科</p>
+              </article>
             </div>
-            <div>
-              <dt>年龄</dt>
-              <dd>24</dd>
-            </div>
-            <div>
-              <dt>求职岗位</dt>
-              <dd>产品经理</dd>
-            </div>
-            <div>
-              <dt>联系方式</dt>
-              <dd>18880417317</dd>
-            </div>
-          </dl>
-          <div class="education-row">
-            <article>
-              <span>2021 - 2025</span>
-              <strong>四川大学</strong>
-              <p>会展经济与管理专业本科</p>
-            </article>
-            <article>
-              <span>2025 - 2028</span>
-              <strong>四川大学</strong>
-              <p>旅游管理专业研究生</p>
-            </article>
           </div>
         </div>
-      </section>
 
-      <section class="panel project-panel" id="projects" aria-labelledby="project-title">
-        <div class="section-heading">
-          <p class="section-mark">/ Projects</p>
-          <h2 id="project-title">我都自己尝试手搓了些什么？</h2>
-          <p>两个小游戏都围绕“单词学习”展开，一个偏即时操作和发音记忆，一个偏探索闯关和复习反馈。</p>
-        </div>
-
-        <div class="project-grid" aria-label="作品列表">
-          <article class="project-card snake-project">
-            <a class="project-media" href="./games/word-snake/" aria-label="进入单词贪吃蛇">
-              <img src="./assets/project-snake.png" alt="单词贪吃蛇 Q 版图标" />
-            </a>
-            <div class="project-body">
-              <p class="project-kicker">Word Snake</p>
-              <h3>单词贪吃蛇</h3>
-              <p>看英文、吃中文，躲避其他蛇，并用加速、护盾等随机道具完成 3 分钟挑战。</p>
-              <ul class="feature-list">
-                <li>横屏手机游戏</li>
-                <li>英式读音反馈</li>
-                <li>可复制复习结果</li>
-              </ul>
-              <a class="project-link" href="./games/word-snake/">进入游戏</a>
-            </div>
-          </article>
-
-          <article class="project-card dungeon-project">
-            <a class="project-media" href="./games/word-dungeon/" aria-label="进入单词地牢">
-              <img src="./assets/project-dungeon.png" alt="单词地牢 Q 版图标" />
-            </a>
-            <div class="project-body">
-              <p class="project-kicker">Word Dungeon</p>
-              <h3>单词地牢</h3>
-              <p>直接进入儿童端，通过寻找中文线索、击中英文怪物完成地牢式单词复习。</p>
-              <ul class="feature-list">
-                <li>横屏闯关体验</li>
-                <li>词义匹配反馈</li>
-                <li>可复制复习结果</li>
-              </ul>
-              <a class="project-link" href="./games/word-dungeon/">进入游戏</a>
-            </div>
-          </article>
+        <div class="research-strip">
+          <span class="strip-label">校园研究</span>
+          <p>
+            联合蚂蚁集团参与四川“信用游”推广研究，开展峨眉山、乐山大佛游客调研；
+            担任中国西部国际博览会评估项目负责人，3 天现场调研并个人收集 90+ 份样本。
+          </p>
         </div>
       </section>
 
-      <section class="panel experience-panel" id="experience" aria-labelledby="experience-title">
-        <div class="section-heading">
-          <p class="section-mark">/ Experience</p>
-          <h2 id="experience-title">实习经历</h2>
-          <p>这里预留后续补充：公司、岗位、时间、职责、产出与项目指标。</p>
+      <section class="panel experience-panel" id="experience" data-section aria-labelledby="experience-title">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="section-mark">02 / EXPERIENCE</p>
+            <h2 id="experience-title">实习，不止是参与，<br />更要沉淀方法与结果。</h2>
+          </div>
+          <p>
+            从 Agent 双链路、Prompt 与长记忆，到生成工作流与业务漏斗，
+            我持续把一线问题沉淀为产品机制，并通过评测与数据验证迭代价值。
+          </p>
         </div>
-        <div class="experience-grid">
+
+        <div class="timeline">
+          <article class="experience-card featured-experience">
+            <header class="experience-header">
+              <div>
+                <span class="date-chip">2026.06 — 2026.08</span>
+                <h3>秘塔科技</h3>
+                <p>AI 产品经理实习生</p>
+              </div>
+              <span class="experience-index">01</span>
+            </header>
+
+            <div class="workstream-grid">
+              <section class="workstream">
+                <p class="workstream-label">AI 灵宠陪伴 App</p>
+                <h4>聊天陪伴 × 养宠 × 玄学探索</h4>
+                <ul>
+                  <li>参与设计“用户对话 + 主动触达”双链路 Agent，串联意图路由、Tools、Persona Prompt、记忆与频控推送。</li>
+                  <li>从 0 到 1 迭代聊天与养宠融合、快捷喂食、旅行、书架阅读等功能，并持续优化 Prompt 与长记忆策略。</li>
+                  <li>构建 200+ 评测数据集，结合机评与人评定位 Bad Case；建立 25 个兴趣赛道与 750 条热点信源。</li>
+                </ul>
+                <div class="result-chips" aria-label="项目成果">
+                  <span>2 类 Agent</span>
+                  <span>200+ 评测集</span>
+                  <span>750 条热点信源</span>
+                </div>
+              </section>
+
+              <section class="workstream">
+                <p class="workstream-label">H3 AI 视频生成</p>
+                <h4>让多模态创意更清晰、更可控</h4>
+                <ul>
+                  <li>将文本及图像、视频、音频素材转译为人物、场景、分镜、对白与音效等结构化 H3 Prompt。</li>
+                  <li>参与分层生成流程设计：标准 Workflow 负责参数校验、Context-IR 优化与任务回存，复杂任务由 Agent 规划分镜并选择生成模式。</li>
+                  <li>搭建完整生成漏斗并持续优化，下载 / 进入转化率提升至 23%，模块上线两周带动日活提升 5%。</li>
+                </ul>
+                <div class="result-chips" aria-label="项目成果">
+                  <span>23% 转化率</span>
+                  <span>日活 +5%</span>
+                  <span>多模态 Workflow</span>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article class="experience-card ctrip-experience">
+            <header class="experience-header">
+              <div>
+                <span class="date-chip">2024.05 — 2024.08</span>
+                <h3>携程集团</h3>
+                <p>酒店业务实习生</p>
+              </div>
+              <span class="experience-index">02</span>
+            </header>
+            <div class="compact-copy">
+              <p>
+                围绕酒店供给上线与后台信息质量，完成资质审核、系统录入、价格抽查及异常反馈，
+                并协同治理酒店图片、设施标签与房型信息。
+              </p>
+              <p>
+                从一线操作识别重复录入、字段不一致、校验与异常提示不足等问题，
+                沉淀字段校验、完整度提醒和异常反馈流程等后台迭代方向。
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel project-panel" id="projects" data-section aria-labelledby="project-title">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="section-mark">03 / PROJECTS</p>
+            <h2 id="project-title">把真实痛点，<br />做成能用的产品。</h2>
+          </div>
+          <p>
+            两个项目都来自我身边的真实场景：一个解决实习复盘与简历转化，
+            一个降低家教中的重复带背成本。借助 AI 编程工具，我把需求快速转化为可测试的产品。
+          </p>
+        </div>
+
+        <div class="project-grid">
+          <article class="product-card workspace-project">
+            <div class="product-visual dashboard-visual" aria-hidden="true">
+              <span class="visual-tag">DESKTOP + ANDROID</span>
+              <div class="mini-window">
+                <span class="mini-sidebar"></span>
+                <div class="mini-content">
+                  <i></i><i></i><i></i>
+                  <b></b><b></b>
+                </div>
+              </div>
+            </div>
+            <div class="product-copy">
+              <p class="project-kicker">2026.06 — 至今 · 独立产品实践</p>
+              <h3>实习成长工作台</h3>
+              <p>
+                为解决工作记录零散、能力成长难复盘、经历难转化为简历的问题，
+                围绕“记录—沉淀—复盘—转化”规划日报、档案库、成长报告与简历素材四大模块。
+              </p>
+              <ul class="feature-list">
+                <li>信息架构</li>
+                <li>核心流程</li>
+                <li>Edge 桌面版</li>
+                <li>Android 原生内测</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="product-card snake-project">
+            <a class="product-visual image-visual" href="./games/word-snake/" aria-label="进入贪吃蛇单词复习游戏">
+              <span class="visual-tag">WEB MVP</span>
+              <img src="./assets/project-snake.png" alt="贪吃蛇单词复习游戏图标" />
+            </a>
+            <div class="product-copy">
+              <p class="project-kicker">2026.05 — 2026.06 · 独立产品实践</p>
+              <h3>贪吃蛇单词复习游戏</h3>
+              <p>
+                基于真实家教场景定义 3 分钟复习目标，设计“英文目标—中文匹配—蛇身成长”核心循环，
+                通过错词回流与学习结算形成完整复习闭环。
+              </p>
+              <ul class="feature-list">
+                <li>双端操控</li>
+                <li>薄弱词复现</li>
+                <li>即时反馈</li>
+                <li>可交互 MVP</li>
+              </ul>
+              <a class="text-link" href="./games/word-snake/">体验在线版本 <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel skills-panel" id="skills" data-section aria-labelledby="skills-title">
+        <div class="section-heading">
+          <p class="section-mark">04 / CAPABILITIES</p>
+          <h2 id="skills-title">产品基本功，<br />加上 AI 时代的交付速度。</h2>
+        </div>
+
+        <div class="capability-grid">
           <article>
             <span>01</span>
-            <h3>实习经历待补充</h3>
-            <p>可填写产品、运营、文旅或教育方向相关经历。</p>
+            <h3>产品全流程</h3>
+            <p>竞品分析、需求拆解、流程设计、PRD、原型与产品评测。</p>
+            <small>墨刀 · ProcessOn · Office</small>
           </article>
           <article>
             <span>02</span>
-            <h3>项目经历待扩展</h3>
-            <p>可继续加入课程项目、竞赛作品、用户调研与数据分析案例。</p>
+            <h3>AI 产品设计</h3>
+            <p>Agent 流程、Prompt 迭代、长记忆策略、评测集与 Bad Case 分析。</p>
+            <small>Agent · Prompt · Workflow</small>
           </article>
           <article>
             <span>03</span>
-            <h3>联系方式待补充</h3>
-            <p>可放邮箱、GitHub、作品集网盘或简历下载链接。</p>
+            <h3>研究与协作</h3>
+            <p>用户研究、结构化表达与跨角色沟通，能够把一线问题沉淀为迭代方向。</p>
+            <small>CET-4 · CET-6</small>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>快速原型</h3>
+            <p>使用 AI 编程工具把产品需求快速转化为可交互 Demo 与可测试产品。</p>
+            <small>Codex · Cursor · Trae</small>
           </article>
         </div>
+
+        <div class="honor-row" aria-label="部分荣誉">
+          <strong>部分荣誉</strong>
+          <span>优秀学生</span>
+          <span>优秀学生干部</span>
+          <span>优秀毕业生</span>
+          <span>全国高校商业精英挑战赛总决赛三等奖</span>
+        </div>
+
+        <footer class="contact-card">
+          <div>
+            <p class="section-mark">LET'S BUILD SOMETHING USEFUL</p>
+            <h2>期待和你一起，<br />把好问题做成好产品。</h2>
+          </div>
+          <div class="contact-links">
+            <a href="https://github.com/jiaozi-lsj" target="_blank" rel="noreferrer">通过 GitHub 联系我 ↗</a>
+            <span>电话与邮箱仅在面试沟通后提供</span>
+          </div>
+        </footer>
       </section>
     </main>
 
